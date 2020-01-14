@@ -1,0 +1,205 @@
+\documentclass[journal, a4paper]{IEEEtran}
+
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{bm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[justification=centering]{caption}
+
+% Your document starts here!
+\begin{document}
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+ %----------------------------------------------------------------------------------------
+%	LOGO SECTION
+%----------------------------------------------------------------------------------------
+
+~\\[1cm]
+\includegraphics{SCUT.png}\\[2cm] % Include a department/university logo - this will require the graphicx package
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\HRule \\[1cm]
+{ \huge \bfseries The Experiment Report of \textit{Deep Learning} }\\[0.6cm] % Title of your document
+\HRule \\[2cm]
+%----------------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%----------------------------------------------------------------------------------------
+
+
+\textsc{\LARGE \textbf{School:} School of Software Engineering}\\[1cm]
+\textsc{\LARGE \textbf{Subject:} Software Engineering}\\[2cm]
+
+
+%----------------------------------------------------------------------------------------
+%	AUTHOR SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Qichen Huang % Your name
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Supervisor:} \\
+Mingkui Tan% Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Student ID:}\\
+201920142806
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Grade:} \\
+Graduate
+\end{flushright}
+\end{minipage}\\[2cm]
+
+% If you don't want a supervisor, uncomment the two lines below and remove the section above
+%\Large \emph{Author:}\\
+%John \textsc{Smith}\\[3cm] % Your name
+
+%----------------------------------------------------------------------------------------
+%	DATE SECTION
+%----------------------------------------------------------------------------------------
+
+{\large \today}\\[2cm] % Date, change the \today to a set date if you want to be precise
+
+
+%----------------------------------------------------------------------------------------
+
+\vfill % Fill the rest of the page with whitespace
+
+\end{titlepage}
+
+% Define document title and author
+	\title{Face Classification Based on AdaBoost Algorithm}
+	\maketitle
+
+% Write abstract here
+\begin{abstract}
+Face Classification is a problem about determining whether it contains a human face or not.
+We present details of AdaBoost algorithm and NPD feature of images, and use them to deal with Face Classification problem.
+Final accuracy of our AdaBoost model reaches 95\%, which is a satisfying result.
+\end{abstract}
+
+% Each section begins with a \section{title} command
+\section{Introduction}
+	% \PARstart{}{} creates a tall first letter for this first paragraph
+\IEEEPARstart{I}{mage} Classification is a classification problem that it tries to figure out which class an image belongs to.
+Face Classification is a specific task among numerous Image Classification problems.
+Its objective is to classify an image whether it contains a human face or not.
+In this experiment, we solve this problem with AdaBoost algorithm, short for Adaptive Boosting, which is an ensemble technique that attempts to create a strong classifier from a number of weak classifiers.
+Because image pixels data is unsuitable for common classification models, we first extract the Normalized Pixel Difference(NPD) feature of images before feeding them into AdaBoost model.
+
+Our motivation is to 1) understand AdaBoost further, 2) get familiar with the basic method of face classification, 3) learn to use AdaBoost to solve the face classification problem and combine theory with actual project, 4) experience the complete process of machine learning.
+We carry out this experiment on 1000 provided images, half of them contain faces while the others do not.
+
+% Main Part
+\section{Methods and Theory}
+AdaBoost is one of the most famous representatives of Boosting algorithms, a serial ensemble method in which all base classifiers are trained one by one.
+Since the key factors affecting performance of AdaBoost algorithm is the accuracy and diversity of base classifiers, AdaBoost learns every base classifier based on samples distribution modified according to previous one, which enable model to pay more attention on mispredicted data.
+The details of AdaBoost algorithm is presented in Table \ref{tab:adabost}.
+
+\begin{table}[!hbt]
+  \centering
+  \caption{AdaBoost Algorithm}
+  \label{tab:adabost}
+  \tabcolsep = 1pt
+  \begin{tabular}{lll}
+    \hline
+    \textbf{Input:} & training set $D={(\bm{x}_1,y_1),(\bm{x}_2,y_2),\dots,(\bm{x}_m,y_m)}$ \\
+     & base classifier $\mathcal{B}$ \\
+     & number of iteration $T$ \\
+    \textbf{Steps:} &  \\
+    1: & $D_1(\bm{x})=\frac{1}{m}$ \\
+    2: & \textbf{for} $t=1,2,\dots,T$ \textbf{do} \\
+    3: & \qquad{}$h_t=\mathcal{B}(D,D_t)$ \\
+    4: & \qquad{}$\epsilon_t=P_{x\sim{}D_t}(h_t(\bm{x})\neq f(\bm{x}))$ \\
+    5: & \qquad{}\textbf{if} $\epsilon_t > 0.5$ \textbf{then break} \\
+    6: & \qquad{}$\alpha_t=\frac{1}{2}\ln{(\frac{1-\epsilon_t}{\epsilon_t})}$ \\
+    7: & \qquad{}$
+                 \begin{aligned}
+                    D_{t+1} & = \frac{D_t(\bm{x})}{Z_t} \times \left\{\begin{array}{ll}
+                                                                        \exp{(-\alpha_t)}&\textit{if}\enspace h_t(\bm{x})=f(\bm{x}) \\
+                                                                        \exp{(\alpha_t)}&\textit{if}\enspace h_t(\bm{x})\neq{}f(\bm{x})
+                                                                      \end{array}\right. \\
+                            & = \frac{D_t(\bm{x})\exp{(-\alpha_tf(\bm{x})h_t(\bm{x}))}}{Z_t}
+                 \end{aligned}
+                 $ \\
+    8: & \textbf{end for} \\
+    \textbf{Output:} & $H(\bm{x})= \textup{sign}(\sum_i^T{\alpha_th_t(\bm{x})})$ \\
+    \hline
+  \end{tabular}
+\end{table}
+In the algorithm, $D_{1\dots T}$ is samples distribution at each iteration, $\epsilon_t$ and $\alpha_t$ are error rate and weight of each base classifier separately.
+
+Normalized Pixel Difference(NPD) is a kind of feature extraction method for image, which is efficient to compute and has several desirable properties, including scale invariance, boundedness, and enabling reconstruction of the original image.
+The NPD feature between two pixels in an image is defined as $f(x,y)=\frac{x-y}{x+y}$, where $x,y\geqslant0$ are intensity values of the two pixels, and $f(0,0)$ is define as 0 when $x=y=0$.
+Then, we compute NPD feature for every pairs of pixels in an image and gather them together, which forms NPD feature of the image.
+
+\section{Experiments}
+\subsection{Dataset}
+The dataset of this experiment consists of 500 human face images with $250\times250$ pixels and 500 other images including animals, vehicle, etc, with $32\times32$ pixels.
+After mixing up, two thirds(667) of the total images are divided into training set and the rest into validation set.
+
+\subsection{Implementation}
+The experiment steps of AdaBoost algorithm are as follows:
+\begin{enumerate}
+  \item Load images data and convert it into grayscale images with size of 24 * 24.
+  \item Process data set data to extract NPD features. Save the feature data in a file for future utilization.
+  \item divide the data set into training set and validation set.
+  \item Write all AdaboostClassifier functions based on the reserved interface in ensemble.py. The following is the guide of fit function in the AdaboostClassifier class:
+      \begin{enumerate}
+        \item Initialize training set weights $\omega$, each training sample is given the same weight.
+        \item Train a base classifier, as which we use sklearn.tree library DecisionTreeClassifier.
+        \item Calculate the classification error rate $\epsilon_t$ of the base classifier on the training set.
+        \item Calculate the parameter $\alpha$ according to the classification error rate $\epsilon$.
+        \item Update training set weights $\omega$.
+        \item Repeat steps 4.2-4.6 above for iteration, the number of iterations is based on the number of classifiers.
+      \end{enumerate}
+  \item Predict and verify the accuracy on the validation set using the method in AdaboostClassifier and use classification\_report of the sklearn.metrics library function writes predicted result to \textit{classifier\_report.txt}.
+\end{enumerate}
+
+In this experiment, the weights of samples $\omega$ are initialized in Uniform Distribution. The \textit{max\_leaf\_node} parameter in DecisionTreeClassifier is initialized as 3 and the number of base classifiers is initialized as 8.
+
+Final result of classification output in \textit{classifier\_report.txt} is presented in Table \ref{tab:report}.
+\begin{table}[!hbt]
+  \centering
+  \caption{Classifier Report}
+  \label{tab:report}
+  \begin{tabular}{rrrrr}
+    \hline
+     &precision&recall&f1-score&support\\
+     \\
+     class nonface&0.95&0.96&0.95&172\\
+     class face&0.96&0.94&0.95&158\\
+     \\
+     accuracy&&&0.95&330\\
+     macro avg&0.95&0.95&0.95&330\\
+     weighted avg&0.95&0.95&0.95&330\\
+    \hline
+  \end{tabular}
+\end{table}
+
+
+\section{Conclusion}
+In this paper,we introduced Image Classification and Face Classification roughly and presented the details of AdaBoost algorithm and NPD feature of images.
+Then, we pictured the experiment that implements Face Classification by AdaBoost with NPD feature extracted from images.
+As is shown in Table \ref{tab:report}, the final accuracy rate of total validation data is 95\%, which is a satisfying result.
+
+\end{document}
